@@ -22,7 +22,11 @@
                           (map (lambda (name check)
                                  (with-syntax ((n name)
                                                (c check))
-                                   #'(unless c
+                                   #'(unless ((lambda (pred-or-list val)
+                                                (if (list? pred-or-list)
+                                                  (any (lambda (p) (p val)) pred-or-list)
+                                                  (pred-or-list val)))
+                                              c n)
                                        (error (format "Parameter check failed: [~a] doesn't satisfy predicate [~a]"
                                                       'n 'c)))))
                                (reverse names)
@@ -34,12 +38,12 @@
                           (lambda (raw-return)
                             (let ((retfn (lambda (result)
                                            (unless (return-pred result)
-                                             (error "Return value check failed"))
+                                             (error (format "Return value check failed: ~a\n" 'ret)))
                                            (raw-return result))))
                               checks-code ...
                               body ...)))))
                    (unless (return-pred result)
-                     (error "Return value check failed"))
+                     (error (format "Return value type mismatch: ~a\n" 'ret)))
                    result)))
            (syntax-case (car params) (:)
              (var
@@ -50,9 +54,7 @@
              ((var : pred)
               (loop (cdr params)
                     (cons #'var names)
-                    (cons #'(pred var) checks))))))))))
-
-
+                    (cons #'pred checks))))))))))
 (define (any? x) #t)
 (define (true)   #t)
 
@@ -69,7 +71,7 @@
   (let ((all-preds (cons pred1 preds)))
     (lambda (param)
       (if (vector? param)
-        (vector-every (lambda (p) (vector-any (lambda (pred?) (pred? p)) all-preds))
+        (vector-every (lambda (p) (any (lambda (pred?) (pred? p)) all-preds))
                       param)
         #f))))
 
@@ -79,17 +81,25 @@
   (tag    option-tag)
   (val    option-val))
 
-(fn :ret some (x -> option?)
+(fn :ret some ((x : any?) -> option?)
     (option 'some x))
 
 (fn :ret none ( -> option?)
     (option 'none #f))
 
+(fn :ret is-some? ((opt : option?) -> boolean?)
+    (eqv? (option-tag opt) 'some))
+
+(fn :ret is-none? ((opt : option?) -> boolean?)
+    (eqv? (option-tag opt) 'none))
+
 ;; (option-of my-type?)
-(fn :ret option-of (pred -> boolean?)
+(fn :ret option-of ((pred : any?) -> procedure?)
     (lambda (opt)
       (if (option? opt)
-        (pred (option-val opt))
+        (cond
+         ((is-some? opt) (pred (option-val opt)))
+         ((is-none? opt) #t))
         #f)))
 
 (define-record-type <result>
@@ -98,25 +108,16 @@
   (tag    result-tag)
   (val    result-val))
 
-(fn :ret ok (x -> result?)
-    (option 'ok x))
+(fn :ret ok ((x : any?) -> result?)
+    (result 'ok x))
 
-(fn :ret err (e -> result?)
-    (option 'err #f))
+(fn :ret err ((e : any?) -> result?)
+    (result 'err #f))
 
 ;; (result-of string? my-error?)
-(fn :ret result-of (pred1 pred2 -> boolean?)
+(fn :ret result-of ((pred1 : any?) (pred2 : any?) -> procedure?)
     (lambda (res)
       (if (result? res)
         (or (and (eqv? (result-tag res) 'ok)  (pred1 (result-val res)))
             (and (eqv? (result-tag res) 'err) (pred2 (result-val res))))
         #f)))
-
-;; Usage example
-;;(fn :ret some-func ((x : number?)
-;;                    (y : number?)
-;;                    (z : number?)
-;;                    -> boolean?)
-;;    (when (zero? x)
-;;      (:ret #t))
-;;    #f)
