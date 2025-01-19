@@ -8,5 +8,5 @@
 ;; defines version-manifest which you can use for exact versioning
 (include "../manifest.ss")
 
-(def (main . args)
-  (displayln "this is a library")
+(define (main . args)
+  (displayln "this is a library"))

@@ -119,5 +119,4 @@
 ;;                    -> boolean?)
 ;;    (when (zero? x)
 ;;      (:ret #t))
-
 ;;    #f)
