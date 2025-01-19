@@ -1,0 +1,147 @@
+#+TITLE: Fxns - Functional Programming Extensions for Gerbil Scheme
+#+AUTHOR: LHO
+
+* Overview
+Fxns provides functional programming utilities for Gerbil Scheme, including:
+- Type-checked function definitions
+- Option and Result types
+- Collection predicates
+
+* Installation
+Install using Gerbil package manager:
+
+#+begin_src shell
+gxpkg install github.com/lhogda/fxns
+#+end_src
+
+* Usage
+** Basic Import
+#+begin_src scheme
+(import :fxns/lib)
+#+end_src
+
+** Function Definition
+The =fn= macro provides type-checked function definitions:
+
+#+begin_src scheme
+(fn :ret add ((x : number?) (y : number?) -> number?)
+  (+ x y))
+#+end_src
+
+Syntax:
+=(fn :ret name (params ... -> return-type) body ...)=
+
+- =:ret= - Early return function name
+- =params= - Either bare identifiers or =(name : type-pred)=
+- =return-type= - Predicate for return value validation
+- =body= - Function body
+
+Multiple predicates supported using lists:
+#+begin_src scheme
+(fn :ret parse-num ((x : (list string? number?)) -> number?)
+  (if (string? x)
+      (string->number x)
+      x))
+#+end_src
+
+** Collection Predicates
+*** list-of
+Creates predicate for homogeneous lists:
+
+#+begin_src scheme
+(define number-list? (list-of number?))
+(number-list? '(1 2 3))  ; => #t
+(number-list? '(1 "a"))  ; => #f
+
+;; Example using list-of in a function
+(fn :ret sum-numbers ((nums : (list-of number?)) -> number?)
+  (apply + nums))
+#+end_src
+
+*** vector-of
+Creates predicate for homogeneous vectors:
+
+#+begin_src scheme
+(define string-vector? (vector-of string?))
+(string-vector? #("a" "b"))  ; => #t
+(string-vector? #(1 2))      ; => #f
+#+end_src
+
+** Option Type
+Represents optional values:
+
+#+begin_src scheme
+(fn :ret find-user ((id : number?) -> option?)
+  (if (valid-id? id)
+      (some (get-user id))
+      (none)))
+
+;; Example using option-of
+(define string-option? (option-of string?))
+(string-option? (some "hello"))  ; => #t
+(string-option? (some 42))       ; => #f
+(string-option? (none))          ; => #t
+#+end_src
+
+Functions:
+- =(some x)= - Wraps value in Some
+- =(none)= - Creates None value
+- =(option-of pred)= - Creates predicate for options containing specific type
+
+** Result Type
+Represents computation that may fail:
+
+#+begin_src scheme
+(fn :ret divide ((x : number?) (y : number?) -> result?)
+  (if (zero? y)
+      (err "Division by zero")
+      (ok (/ x y))))
+
+;; Example using result-of
+(define number-result? (result-of number? string?))
+(number-result? (ok 42))           ; => #t
+(number-result? (err "failed"))    ; => #t
+(number-result? (ok "not-number")) ; => #f
+#+end_src
+
+Functions:
+- =(ok x)= - Successful result
+- =(err e)= - Error result
+- =(result-of ok-pred err-pred)= - Creates predicate for results
+
+* Examples
+#+begin_src scheme
+;; Type-checked function with early return
+(fn :ret factorial ((n : number?) -> number?)
+  (when (< n 0)
+    (:ret 0))
+  (if (zero? n)
+      1
+      (* n (factorial (- n 1)))))
+
+;; Option handling
+(fn :ret safe-div ((x : number?) (y : number?) -> option?)
+  (if (zero? y)
+      (none)
+      (some (/ x y))))
+
+;; Result with multiple predicates
+(fn :ret parse ((s : [string? number?]) -> result?)
+  (try
+    (ok (if (string? s)
+            (string->number s)
+            s))
+    (catch (e)
+      (err e))))
+#+end_src
+
+* License
+#+BEGIN_SRC
+Fair License
+
+Copyright © 2025 Lukáš Hozda
+
+Usage of the works is permitted provided that this instrument is retained with the works, so that any entity that uses the works is notified of this instrument.
+
+DISCLAIMER: THE WORKS ARE WITHOUT WARRANTY.
+#+END_SRC
