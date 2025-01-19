@@ -85,6 +85,13 @@
 (fn :ret none ( -> option?)
     (option 'none #f))
 
+;; (option-of my-type?)
+(fn :ret option-of (pred -> boolean?)
+    (lambda (opt)
+      (if (option? opt)
+        (pred (option-val opt))
+        #f)))
+
 (define-record-type <result>
   (result tag data)
   result?
@@ -97,6 +104,13 @@
 (fn :ret err (e -> result?)
     (option 'err #f))
 
+;; (result-of string? my-error?)
+(fn :ret result-of (pred -> boolean?)
+    (lambda (res)
+      (if (result? res)
+        (or (and (eqv? (result-tag res) 'ok)  (pred1 (result-val res)))
+            (and (eqv? (result-tag res) 'err) (pred2 (result-val res))))
+        #f)))
 
 ;; Usage example
 ;;(fn :ret some-func ((x : number?)
