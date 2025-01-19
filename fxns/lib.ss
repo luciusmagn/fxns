@@ -27,8 +27,10 @@
                                                   (any (lambda (p) (p val)) pred-or-list)
                                                   (pred-or-list val)))
                                               c n)
-                                       (error (format "Parameter check failed: [~a] doesn't satisfy predicate [~a]"
-                                                      'n 'c)))))
+                                       (error (format "~a : Parameter type mismatch: [~a] doesn't satisfy predicate [~a]"
+                                                      'func-name
+                                                      'n
+                                                      'c)))))
                                (reverse names)
                                (reverse checks)))
                          (return-pred #'ret))
@@ -38,12 +40,16 @@
                           (lambda (raw-return)
                             (let ((retfn (lambda (result)
                                            (unless (return-pred result)
-                                             (error (format "Return value check failed: ~a\n" 'ret)))
+                                             (error (format "~a : Return value check failed: ~a\n"
+                                                            'func-name
+                                                            'ret)))
                                            (raw-return result))))
                               checks-code ...
                               body ...)))))
                    (unless (return-pred result)
-                     (error (format "Return value type mismatch: ~a\n" 'ret)))
+                     (error (format "~a : Return value type mismatch: ~a\n"
+                                    'func-name
+                                    'ret)))
                    result)))
            (syntax-case (car params) (:)
              (var
