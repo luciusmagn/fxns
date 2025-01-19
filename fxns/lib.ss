@@ -72,6 +72,12 @@
                param)
         #f))))
 
+;; TODO: add tests for or-false?
+(define (or-false? pred)
+  (lambda (value)
+    (if (not value)
+      #t
+      (pred value))))
 
 (define (vector-of pred1 . preds)
   (let ((all-preds (cons pred1 preds)))
