@@ -105,7 +105,7 @@
     (option 'err #f))
 
 ;; (result-of string? my-error?)
-(fn :ret result-of (pred -> boolean?)
+(fn :ret result-of (pred1 pred2 -> boolean?)
     (lambda (res)
       (if (result? res)
         (or (and (eqv? (result-tag res) 'ok)  (pred1 (result-val res)))
