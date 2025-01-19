@@ -11,7 +11,9 @@ Fxns provides functional programming utilities for Gerbil Scheme, including:
 Install using Gerbil package manager:
 
 #+begin_src shell
-gxpkg install github.com/lhogda/fxns
+gerbil pkg deps -a github.com/luciusmagn/fxns
+gerbil pkg deps -i
+gerbil pkg deps -u # whenever you need to update
 #+end_src
 
 * Usage
