@@ -85,6 +85,18 @@
 (fn :ret none ( -> option?)
     (option 'none #f))
 
+(define-record-type <result>
+  (result tag data)
+  result?
+  (tag    result-tag)
+  (val    result-val))
+
+(fn :ret ok (x -> result?)
+    (option 'ok x))
+
+(fn :ret err (e -> result?)
+    (option 'err #f))
+
 
 ;; Usage example
 ;;(fn :ret some-func ((x : number?)
