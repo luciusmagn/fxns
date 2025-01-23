@@ -87,6 +87,14 @@
                       param)
         #f))))
 
+(define (or-t . preds)
+  (lambda (param)
+    (apply or (map (lambda (pred) (pred param)) preds))))
+
+(define (and-t . preds)
+  (lambda (param)
+    (apply and (map (lambda (pred) (pred param)) preds))))
+
 (define-record-type <option>
   (option tag data)
   option?
@@ -119,6 +127,7 @@
   result?
   (tag    result-tag)
   (val    result-val))
+
 
 (fn :ret ok ((x : any?) -> result?)
     (result 'ok x))

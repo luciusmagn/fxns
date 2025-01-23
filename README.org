@@ -69,6 +69,22 @@ Creates predicate for homogeneous vectors:
 (string-vector? #(1 2))      ; => #f
 #+end_src
 
+** Combo predicaties
+*** or-t
+Type must match one or more of the listed predicates:
+
+#+BEGIN_SRC scheme
+(fn :ret  hello ( -> (or-t string? number?))
+    ...)
+#+END_SRC
+*** and-t
+Type must match all of the listed predicates:
+
+#+BEGIN_SRC scheme
+(fn :ret  hello ( -> (and-t string? number?))
+    ...)
+#+END_SRC
+
 ** Option Type
 Represents optional values:
 
