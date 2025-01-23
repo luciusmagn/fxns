@@ -69,7 +69,7 @@ Creates predicate for homogeneous vectors:
 (string-vector? #(1 2))      ; => #f
 #+end_src
 
-** Combo predicaties
+** Combo predicates
 *** or-t
 Type must match one or more of the listed predicates:
 
