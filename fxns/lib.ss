@@ -89,11 +89,23 @@
 
 (define (or-t . preds)
   (lambda (param)
-    (apply or (map (lambda (pred) (pred param)) preds))))
+    (let loop ((preds preds))
+      (if (null? preds)
+        #f
+        (let ((result ((car preds) param)))
+          (if result
+            result
+            (loop (cdr preds))))))))
 
 (define (and-t . preds)
   (lambda (param)
-    (apply and (map (lambda (pred) (pred param)) preds))))
+    (let loop ((preds preds))
+      (if (null? preds)
+        #t
+        (let ((result ((car preds) param)))
+          (if result
+            (loop (cdr preds))
+            #f))))))
 
 (define-record-type <option>
   (option tag data)
