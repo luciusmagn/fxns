@@ -72,6 +72,12 @@
                param)
         #f))))
 
+(define (pair-of pred1 pred2)
+  (lambda (param)
+    (if (pair param?)
+      (and (pred1 (car param))
+           (pred2 (cdr param))))))
+
 ;; TODO: add tests for or-false?
 (define (or-false? pred)
   (lambda (value)
