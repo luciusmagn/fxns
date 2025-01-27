@@ -38,14 +38,18 @@
                  (let ((result
                         (call/cc
                           (lambda (raw-return)
-                            (let ((retfn (lambda (result)
-                                           (unless (return-pred result)
-                                             (error (format "~a : Return value check failed: ~a\n"
-                                                            'func-name
-                                                            'ret)))
-                                           (raw-return result))))
-                              checks-code ...
-                              body ...)))))
+                            (try
+                             (let ((retfn (lambda (result)
+                                            (unless (return-pred result)
+                                              (error (format "~a : Return value check failed: ~a\n"
+                                                             'func-name
+                                                             'ret)))
+                                            (raw-return result))))
+                               checks-code ...
+                               body ...)
+                             (catch (e) (error (format "~a : An exception has occured: ~a\n"
+                                                       'func-name
+                                                       e))))))))
                    (unless (return-pred result)
                      (error (format "~a : Return value type mismatch: ~a\n"
                                     'func-name
